@@ -1,16 +1,17 @@
-const HDWalletProvider = require('truffle-hdwallet-provider')
+const HDWalletProvider = require("@truffle/hdwallet-provider");
 const web3 = require('web3')
 const MNEMONIC = process.env.MNEMONIC
-const INFURA_KEY = process.env.INFURA_KEY
+const NODE_API_KEY = process.env.INFURA_KEY || process.env.ALCHEMY_KEY;
+const isInfura = !!process.env.INFURA_KEY;
 const LOOTBOX_CONTRACT_ADDRESS = process.env.LOOTBOX_CONTRACT_ADDRESS
 const OWNER_ADDRESS = process.env.OWNER_ADDRESS
 const NETWORK = process.env.NETWORK
 
-if (!MNEMONIC || !INFURA_KEY || !OWNER_ADDRESS || !NETWORK) {
+if (!MNEMONIC || !NODE_API_KEY || !OWNER_ADDRESS || !NETWORK) {
   console.error(
-    'Please set a mnemonic, infura key, owner, network, and contract address.'
-  )
-  return
+    "Please set a mnemonic, Alchemy/Infura key, owner, network, and contract address."
+  );
+  return;
 }
 
 const LOOTBOX_ABI = [
@@ -49,9 +50,11 @@ async function main() {
     NETWORK === 'mainnet' || NETWORK === 'live' ? 'mainnet' : 'rinkeby'
   const provider = new HDWalletProvider(
     MNEMONIC,
-    `https://${network}.infura.io/v3/${INFURA_KEY}`
-  )
-  const web3Instance = new web3(provider)
+    isInfura
+      ? "https://" + network + ".infura.io/v3/" + NODE_API_KEY
+      : "https://eth-" + network + ".alchemyapi.io/v2/" + NODE_API_KEY
+  );
+  const web3Instance = new web3(provider);
 
   if (!LOOTBOX_CONTRACT_ADDRESS) {
     console.error('Please set a LootBox contract address.')
@@ -60,12 +63,14 @@ async function main() {
 
   const factoryContract = new web3Instance.eth.Contract(
     LOOTBOX_ABI,
-    LOOTBOX_CONTRACT_ADDRESS
-  )
+    LOOTBOX_CONTRACT_ADDRESS,
+    { gasLimit: "1000000" }
+  );
+
   const result = await factoryContract.methods
     .unpack(0, OWNER_ADDRESS, 1)
-    .send({ from: OWNER_ADDRESS, gas: 100000 })
-  console.log('Created. Transaction: ' + result.transactionHash)
+    .send({ from: OWNER_ADDRESS });
+  console.log('Created. Transaction: ' + result.transactionHash);
 }
 
-main()
+main().catch((e) => console.error(e));

@@ -7,29 +7,30 @@ const MnemonicWalletSubprovider = require('@0x/subproviders')
 const RPCSubprovider = require('web3-provider-engine/subproviders/rpc')
 const Web3ProviderEngine = require('web3-provider-engine')
 
-const MNEMONIC = process.env.MNEMONIC
-const INFURA_KEY = process.env.INFURA_KEY
-const FACTORY_CONTRACT_ADDRESS = process.env.FACTORY_CONTRACT_ADDRESS
-const OWNER_ADDRESS = process.env.OWNER_ADDRESS
-const NETWORK = process.env.NETWORK
-const API_KEY = process.env.API_KEY || '' // API key is optional but useful if you're doing a high volume of requests.
+const MNEMONIC = process.env.MNEMONIC;
+const NODE_API_KEY = process.env.INFURA_KEY || process.env.ALCHEMY_KEY;
+const isInfura = !!process.env.INFURA_KEY;
+const FACTORY_CONTRACT_ADDRESS = process.env.FACTORY_CONTRACT_ADDRESS;
+const OWNER_ADDRESS = process.env.OWNER_ADDRESS;
+const NETWORK = process.env.NETWORK;
+const API_KEY = process.env.API_KEY || ""; // API key is optional but useful if you're doing a high volume of requests.
 
 // Lootboxes only. These are the *Factory* option IDs.
 // These map to 0, 1, 2 as LootBox option IDs, or 1, 2, 3 as LootBox token IDs.
-const FIXED_PRICE_OPTION_IDS = ['6', '7', '8']
+const FIXED_PRICE_OPTION_IDS = ['0', '1', '2']
 const FIXED_PRICES_ETH = [0.1, 0.2, 0.3]
-const NUM_FIXED_PRICE_AUCTIONS = [1000, 1000, 1000] // [2034, 2103, 2202];
+const NUM_FIXED_PRICE_AUCTIONS = [10, 10, 10] // [2034, 2103, 2202];
 
-if (!MNEMONIC || !INFURA_KEY || !NETWORK || !OWNER_ADDRESS) {
+if (!MNEMONIC || !NODE_API_KEY || !NETWORK || !OWNER_ADDRESS) {
   console.error(
-    'Please set a mnemonic, infura key, owner, network, API key, nft contract, and factory contract address.'
-  )
-  return
+    "Please set a mnemonic, Alchemy/Infura key, owner, network, API key, nft contract, and factory contract address."
+  );
+  return;
 }
 
 if (!FACTORY_CONTRACT_ADDRESS) {
-  console.error('Please specify a factory contract address.')
-  return
+  console.error('Please specify a factory contract address.');
+  return;
 }
 
 const BASE_DERIVATION_PATH = `44'/60'/0'/0`
@@ -37,17 +38,19 @@ const BASE_DERIVATION_PATH = `44'/60'/0'/0`
 const mnemonicWalletSubprovider = new MnemonicWalletSubprovider({
   mnemonic: MNEMONIC,
   baseDerivationPath: BASE_DERIVATION_PATH,
-})
+});
 const network =
-  NETWORK === 'mainnet' || NETWORK === 'live' ? 'mainnet' : 'rinkeby'
+  NETWORK === 'mainnet' || NETWORK === 'live' ? 'mainnet' : 'rinkeby';
 const infuraRpcSubprovider = new RPCSubprovider({
-  rpcUrl: 'https://' + network + '.infura.io/v3/' + INFURA_KEY,
-})
+  rpcUrl: isInfura
+    ? "https://" + network + ".infura.io/v3/" + NODE_API_KEY
+    : "https://eth-" + network + ".alchemyapi.io/v2/" + NODE_API_KEY,
+});
 
-const providerEngine = new Web3ProviderEngine()
-providerEngine.addProvider(mnemonicWalletSubprovider)
-providerEngine.addProvider(infuraRpcSubprovider)
-providerEngine.start()
+const providerEngine = new Web3ProviderEngine();
+providerEngine.addProvider(mnemonicWalletSubprovider);
+providerEngine.addProvider(infuraRpcSubprovider);
+providerEngine.start();
 
 const seaport = new OpenSeaPort(
   providerEngine,
@@ -59,13 +62,13 @@ const seaport = new OpenSeaPort(
     apiKey: API_KEY,
   },
   (arg) => console.log(arg)
-)
+);
 
 async function main() {
   // Example: many fixed price auctions for a factory option.
   for (let i = 0; i < FIXED_PRICE_OPTION_IDS.length; i++) {
     const optionId = FIXED_PRICE_OPTION_IDS[i]
-    console.log(`Creating fixed price auctions for ${optionId}...`)
+    console.log(`Creating fixed price auctions for ${optionId}...`);
     const numOrders = await seaport.createFactorySellOrders({
       assets: [
         {
@@ -82,8 +85,8 @@ async function main() {
       // Number of times to repeat creating the same order for each asset. If greater than 5, creates them in batches of 5. Requires an `apiKey` to be set during seaport initialization:
       numberOfOrders: NUM_FIXED_PRICE_AUCTIONS[i],
     })
-    console.log(`Successfully made ${numOrders} fixed-price sell orders!\n`)
+    console.log(`Successfully made ${numOrders} fixed-price sell orders!\n`);
   }
 }
 
-main().catch((e) => console.error(e))
+main().catch((e) => console.error(e));
