@@ -21,7 +21,7 @@ contract CreatureAccessory is ERC1155Tradable {
         ERC1155Tradable(
             "OpenSea Creature Accessory",
             "OSCA",
-            "https://creatures-api.opensea.io/api/accessory/{id}",
+            "https://opensea-creatures-api.herokuapp.com/api/creature/",
             _proxyRegistryAddress
         ) {}
 

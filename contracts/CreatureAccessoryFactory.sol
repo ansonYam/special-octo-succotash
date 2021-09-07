@@ -21,7 +21,7 @@ contract CreatureAccessoryFactory is FactoryERC1155, Ownable, ReentrancyGuard {
     address public nftAddress;
     address public lootBoxAddress;
     string
-        internal constant baseMetadataURI = "https://creatures-api.opensea.io/api/";
+        internal constant baseMetadataURI = "https://opensea-creatures-api.herokuapp.com/api/";
     uint256 constant UINT256_MAX = ~uint256(0);
 
     /*
@@ -31,7 +31,7 @@ contract CreatureAccessoryFactory is FactoryERC1155, Ownable, ReentrancyGuard {
     uint256 constant SUPPLY_PER_TOKEN_ID = UINT256_MAX;
 
     // The number of creature accessories (not creature accessory rarity classes!)
-    uint256 constant NUM_ITEM_OPTIONS = 6;
+    uint256 constant NUM_ITEM_OPTIONS = 1;
 
     /*
      * Three different options for minting CreatureAccessories (basic, premium, and gold).
@@ -46,12 +46,12 @@ contract CreatureAccessoryFactory is FactoryERC1155, Ownable, ReentrancyGuard {
 
     constructor(
         address _proxyRegistryAddress,
-        address _nftAddress,
-        address _lootBoxAddress
+        address _nftAddress
+        //address _lootBoxAddress
     ) {
         proxyRegistryAddress = _proxyRegistryAddress;
         nftAddress = _nftAddress;
-        lootBoxAddress = _lootBoxAddress;
+        //lootBoxAddress = _lootBoxAddress;
     }
 
     /////
@@ -208,6 +208,17 @@ contract CreatureAccessoryFactory is FactoryERC1155, Ownable, ReentrancyGuard {
             // We can mint up to a balance of SUPPLY_PER_TOKEN_ID
             return SUPPLY_PER_TOKEN_ID.sub(currentSupply);
         }
+    }
+
+  //////
+  // Below methods shouldn't need to be overridden or modified
+  //////
+
+    function isApprovedForAll(
+        address _owner,
+        address _operator
+    ) public view returns (bool) {
+        return owner() == _owner && _isOwnerOrProxy(_operator);
     }
 
     function _canMint(

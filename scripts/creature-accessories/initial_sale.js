@@ -17,9 +17,9 @@ const API_KEY = process.env.API_KEY || ""; // API key is optional but useful if 
 
 // Lootboxes only. These are the *Factory* option IDs.
 // These map to 0, 1, 2 as LootBox option IDs, or 1, 2, 3 as LootBox token IDs.
-const FIXED_PRICE_OPTION_IDS = ['0', '1', '2']
-const FIXED_PRICES_ETH = [0.1, 0.2, 0.3]
-const NUM_FIXED_PRICE_AUCTIONS = [10, 10, 10] // [2034, 2103, 2202];
+const FIXED_PRICE_OPTION_IDS = ['0'] // ['0', '1', '2'];
+const FIXED_PRICES_ETH = [0.1] //[0.1, 0.2, 0.3];
+const NUM_FIXED_PRICE_AUCTIONS = [3] // [2034, 2103, 2202];
 
 if (!MNEMONIC || !NODE_API_KEY || !NETWORK || !OWNER_ADDRESS) {
   console.error(

@@ -61,6 +61,7 @@ module.exports = async (deployer, network, addresses) => {
   }
 
   if (DEPLOY_ACCESSORIES_SALE) {
+    /*
     await deployer.deploy(LootBoxRandomness);
     await deployer.link(LootBoxRandomness, CreatureAccessoryLootBox);
     await deployer.deploy(
@@ -69,11 +70,12 @@ module.exports = async (deployer, network, addresses) => {
       { gas: 6721975 }
     );
     const lootBox = await CreatureAccessoryLootBox.deployed();
+    */
     await deployer.deploy(
       CreatureAccessoryFactory,
       proxyRegistryAddress,
       CreatureAccessory.address,
-      CreatureAccessoryLootBox.address,
+      //CreatureAccessoryLootBox.address,
       { gas: 5000000 }
     );
     const accessories = await CreatureAccessory.deployed();
@@ -81,7 +83,9 @@ module.exports = async (deployer, network, addresses) => {
     await accessories.transferOwnership(
       CreatureAccessoryFactory.address
     );
+    /*
     await setupCreatureAccessories.setupAccessoryLootBox(lootBox, factory);
     await lootBox.transferOwnership(factory.address);
+    */
   }
 };

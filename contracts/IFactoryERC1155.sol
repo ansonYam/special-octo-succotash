@@ -63,7 +63,7 @@ interface FactoryERC1155 {
         uint256 _amount,
         bytes calldata _data
     ) external;
-
+    
     ///////
     // Get things to work on OpenSea with mock methods below
     ///////
